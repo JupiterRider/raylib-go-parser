@@ -2,15 +2,19 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"os"
+
+	"github.com/dave/jennifer/jen"
 )
 
 var (
-	inputJson string
+	inputJson  string
+	outputFile string
 )
 
 func init() {
 	flag.StringVar(&inputJson, "input", "raylib_api.json", "json file to decode")
+	flag.StringVar(&outputFile, "output", "raylib_purego", "generated result file")
 	flag.Parse()
 }
 
@@ -20,7 +24,19 @@ func main() {
 		panic(err)
 	}
 
-	for _, v := range api.Functions {
-		fmt.Println(v.ReturnType)
+	file := jen.NewFile("rl")
+
+	for _, function := range api.Functions {
+		file.Commentf("%s - %s", function.Name, function.Description)
+		GenerateReturn(file.Func().Id(function.Name).Params(GenerateParams(function.Params)...), function.ReturnType).Block()
+	}
+
+	err = file.Save(outputFile)
+	if err != nil {
+
+		f, _ := os.Create("error.log")
+		f.WriteString(err.Error())
+		f.Close()
+		panic(err)
 	}
 }
