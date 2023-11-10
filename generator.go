@@ -35,7 +35,7 @@ func GenerateReturn(statement *jen.Statement, ReturnType string) *jen.Statement 
 	return statement.Id(goType)
 }
 
-// IsReserved returns true if the word is golang keyword or name package
+// IsReserved returns true if the word is a go keyword or name of a package.
 func IsReserved(word string) bool {
 	if jen.IsReservedWord(word) {
 		return true
