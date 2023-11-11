@@ -1,8 +1,12 @@
 package main
 
-import "github.com/dave/jennifer/jen"
+import (
+	"strings"
 
-func GenerateParams(params []Parameter) []jen.Code {
+	"github.com/dave/jennifer/jen"
+)
+
+func GenerateParams(params []Parameter, useUintptr bool) []jen.Code {
 	var jenParams []jen.Code
 
 	for _, parameter := range params {
@@ -13,6 +17,10 @@ func GenerateParams(params []Parameter) []jen.Code {
 		name := parameter.Name
 		if IsReserved(name) {
 			name = "_" + name
+		}
+
+		if useUintptr && !IsPrimitive(datatype) {
+			datatype = "uintptr"
 		}
 
 		jenParams = append(jenParams, jen.Id(name).Id(datatype))
@@ -47,4 +55,46 @@ func IsReserved(word string) bool {
 	}
 
 	return false
+}
+
+func IsPrimitive(typ string) bool {
+	if strings.HasPrefix(typ, "[]") {
+		return true
+	}
+	switch typ {
+	case "bool":
+		return true
+	case "uint8":
+		return true
+	case "uint16":
+		return true
+	case "uint32":
+		return true
+	case "uint64":
+		return true
+	case "int8":
+		return true
+	case "int16":
+		return true
+	case "int32":
+		return true
+	case "int64":
+		return true
+	case "float32":
+		return true
+	case "float64":
+		return true
+	case "int":
+		return true
+	case "uint":
+		return true
+	case "byte":
+		return true
+	case "rune":
+		return true
+	case "string":
+		return true
+	default:
+		return false
+	}
 }
